@@ -14,7 +14,8 @@ class GridPoint {
     }
 }
 
-class Star {
+// Used as a station
+class StarStation {
     constructor(x, y, w) {
         this.x = x;
         this.y = y;
@@ -28,6 +29,7 @@ class Star {
     show() {
         strokeWeight(2);
         stroke(this.color);
+        fill('white');
         let angle = (TWO_PI)/ this.npoints;
         let halfAngle = angle / 2.0;
         beginShape();
@@ -44,10 +46,28 @@ class Star {
     }
 }
 
+class CircleStation {
+    constructor(x, y, w) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.color = color('black')
+
+    }
+
+    show() {
+        strokeWeight(2);
+        stroke(this.color);
+        fill('white');
+        ellipse(this.x, this.y, this.w);
+    }
+}
 
 // Global vars
 var canvasWidth = 800;
 var canvasHeight = 800;
+var control = false;
+var stationSelected = 0;
 
 // No. of gridpoints on canvas
 var GridWidth = 10;
@@ -101,6 +121,7 @@ function getClosestGridPoint(x, y) {
     closestGridPointY = (closestGridPointY <= 0) ? 1 : closestGridPointY;
     closestGridPointY = (closestGridPointY >= GridHeight) ? GridHeight : closestGridPointY;
 
+    // Multiply by spacing to get canvas coordinates
     return [closestGridPointX * gridSpacingW, closestGridPointY * gridSpacingH];
 }
 
@@ -109,12 +130,49 @@ function draw() {
 
 }
 
+function keyPressed() {
+    if (keyCode === CONTROL) {
+        control = true;
+    }
+    return false;
+}
+
+function keyReleased() {
+    if (keyCode === CONTROL) {
+        control = false;
+    }
+
+    return false;
+}
+
+function mousePressed() {
+    if (mouseButton === CENTER) {
+        stationSelected = (stationSelected === 1) ? 0 : 1;
+    }
+
+    return false;
+}
+
 function debugMouseClick() {
     stroke(199, 36, 177);
     fill('white');
     strokeWeight(5);
     let gridX = getClosestGridPoint(mouseX, mouseY)[0];
     let gridY = getClosestGridPoint(mouseX, mouseY)[1];
-    new Star(gridX, gridY, 20).show();
+
+    switch (stationSelected) {
+        case 0:
+            new StarStation(gridX, gridY, 20).show();
+            break;
+        case 1:
+            new CircleStation(gridX, gridY, 40).show();
+            break;
+        default:
+            new CircleStation(gridX, gridY, 20).show();
+            console.log(`stationSelected equal to ${stationSelected}, falling back to default behavior`);
+            break;
+
+    }
+    
     noStroke();
 }
